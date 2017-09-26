@@ -64,7 +64,8 @@ main :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) 
 main = launchAff_ do
   -- let g = G.gBipole
   -- let g = G.gFork
-  g <- liftEff $ G.gPreferentialAttachment 1 1 50
+  -- g <- liftEff $ G.gPreferentialAttachment 3 3 50
+  g <- liftEff $ G.gRandom 0.1 50
   _ <- liftEff $ log $ show g
   _ <- go g 1
   pure unit

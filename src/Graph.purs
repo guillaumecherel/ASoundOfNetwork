@@ -9,14 +9,14 @@ import Data.Set as S
 import Data.Typelevel.Undefined (undefined)
 import Data.Tuple as T
 import Data.Foldable (class Foldable, foldMap, foldl)
-import Data.Traversable (traverse)
+import Data.Traversable (traverse, sequence)
 import Data.Monoid (class Monoid)
 import Data.Semigroup (class Semigroup)
 import Data.Bifunctor (rmap)
 import Data.Maybe (Maybe(..))
 import Data.Unfoldable (class Unfoldable)
 import Control.Monad.Eff
-import Control.Monad.Eff.Random (randomInt, RANDOM)
+import Control.Monad.Eff.Random (randomInt, randomRange, RANDOM)
 
 import Random
  
@@ -75,6 +75,22 @@ gBipole = undirected (singletonEdge 1 2)
 
 gFork :: Graph
 gFork = undirected $ fromEdges $ [T.Tuple 1 2,T.Tuple 1 3]
+
+gRandom :: forall e. Number -> Int -> Eff (random :: RANDOM | e) Graph
+gRandom p size = 
+  do
+    (mbEdges :: L.List (Maybe Graph)) <- (sequence <<< L.concat) $
+      map (\u -> map (\v -> randomRange 0.0 1.0 >>= (\r ->
+                              if r < p
+                                then pure (Just (undirected $ singletonEdge u v))
+                                else pure Nothing)) 
+                     (L.range u size)) 
+          (L.range 1 size)
+    pure $ foldl (\g m -> g <> case m of
+                                 Just e -> e
+                                 Nothing -> empty)
+                 empty
+                 mbEdges
 
 gPreferentialAttachment :: forall e. Int -> Int -> Int -> Eff (random :: RANDOM | e) Graph
 gPreferentialAttachment m0 m size = 
