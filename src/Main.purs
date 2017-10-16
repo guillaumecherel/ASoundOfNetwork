@@ -14,7 +14,7 @@ import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Random (RANDOM)
 import Control.Monad.Eff.Timer (TIMER)
 import Control.Monad.Loops (iterateUntilM)
-import Graph as G 
+import Graph as G
 import Random as R
 
 
@@ -22,11 +22,11 @@ import Random as R
 step :: forall e. G.Graph -> Int -> Eff (random :: RANDOM | e) (Maybe Int)
 step g u = let mbNeighbours = G.neighbours u g
            in case mbNeighbours of
-             Just neighbours -> 
-               case NL.fromList $ L.fromFoldable neighbours of 
-                 Just neNeighbours -> 
+             Just neighbours ->
+               case NL.fromList $ L.fromFoldable neighbours of
+                 Just neNeighbours ->
                    let mbDegrees = sequence $ map ((flip G.degree) g) neNeighbours
-                   in case mbDegrees of 
+                   in case mbDegrees of
                      Just degrees -> map Just $ R.weightedChoice (NL.zip neNeighbours (map toNumber degrees))
                      Nothing -> pure (Just u)
                  Nothing -> pure (Just u)
@@ -36,18 +36,18 @@ wait :: forall e. G.Graph -> Int -> Aff (console :: CONSOLE, random :: RANDOM, t
 wait g u = case (G.degree u g) of
   Nothing -> pure unit
   Just 0 -> pure unit
-  Just d -> do 
+  Just d -> do
     delay (Milliseconds (1000.0 / (toNumber d)))
     pure unit
 
 go :: forall e. G.Graph -> Int -> Aff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) (Maybe Int)
 go g u = iterateUntilM
   (\mbV -> case mbV of
-    Just v -> false 
+    Just v -> false
     Nothing -> true)
-  (\mbU -> case mbU of 
+  (\mbU -> case mbU of
     Just u -> do
-      wait g u 
+      wait g u
       v <- liftEff $ step g u
       liftEff $ log (show v)
       liftEff $ tick
