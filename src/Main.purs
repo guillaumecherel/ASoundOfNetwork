@@ -57,8 +57,7 @@ go g u = iterateUntilM
       pure Nothing)
   (Just u)
 
-tick :: forall e. Eff (console :: CONSOLE | e) Unit
-tick = log "Tick!"
+foreign import tick :: forall e. Eff (console :: CONSOLE | e) Unit
 
 main :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
 main = launchAff_ do
