@@ -3,9 +3,38 @@
 <head>
     <meta charset="utf-8">
     <script src="ASoundOfNetwork.js"></script>
+    <script>
+
+function runGraph(name) {
+    location.hash = name;
+    location.reload();
+}
+
+window.onload = function() {
+    var graphName = 'graph' + location.hash.substr(1)
+      , buttons = document.getElementsByTagName('button');
+
+    if (aSoundOfNetwork.hasOwnProperty(graphName)) {
+        console.log('Run ' + graphName + '...');
+        aSoundOfNetwork[graphName]();
+    }
+
+    for (i = 0; i < buttons.length; i++) {
+        buttons[i].onclick = function() {
+            runGraph(this.name);
+        }
+    }
+}
+
+    </script>
 </head>
 <body>
-    <button onclick="aSoundOfNetwork.graphRandom()">Random</button>
-    <button onclick="aSoundOfNetwork.graphPA()">PA</button>
+    <p>
+        <button name="Random">Random</button>
+        <button name="PA">PA</button>
+    </p>
+    <p>
+        <button>Stop</button>
+    </p>
 </body>
 </html>
