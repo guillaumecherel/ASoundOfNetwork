@@ -12,11 +12,12 @@ import Data.Foldable (class Foldable, foldMap, foldl)
 import Data.Traversable (traverse, sequence)
 import Data.Monoid (class Monoid)
 import Data.Semigroup (class Semigroup)
+import Data.Monoid (mempty)
 import Data.Bifunctor (rmap)
 import Data.Maybe (Maybe(..))
 import Data.Unfoldable (class Unfoldable)
 import Control.Monad.Eff
-import Control.Monad.Eff.Random (randomInt, randomRange, RANDOM)
+import Control.Monad.Eff.Random (random, randomInt, randomRange, RANDOM)
 
 import Random
  
@@ -76,8 +77,8 @@ gBipole = undirected (singletonEdge 1 2)
 gFork :: Graph
 gFork = undirected $ fromEdges $ [T.Tuple 1 2,T.Tuple 1 3]
 
-gRandom :: forall e. Number -> Int -> Eff (random :: RANDOM | e) Graph
-gRandom p size = 
+gErdosRenyi :: forall e. Number -> Int -> Eff (random :: RANDOM | e) Graph
+gErdosRenyi p size = 
   do
     (mbEdges :: L.List (Maybe Graph)) <- (sequence <<< L.concat) $
       map (\u -> map (\v -> randomRange 0.0 1.0 >>= (\r ->
@@ -92,8 +93,33 @@ gRandom p size =
                  empty
                  mbEdges
 
-gPreferentialAttachment :: forall e. Int -> Int -> Int -> Eff (random :: RANDOM | e) Graph
-gPreferentialAttachment m0 m size = 
+gWattsStrogatz :: forall e. Int -> Int -> Number -> Eff (random :: RANDOM | e) Graph
+gWattsStrogatz n k beta = 
+  let 
+    startingNodes = (L.range 1 n)
+    regularRingEdges i = map (\i -> (mod ((mod (i - 1) n) + n) n) + 1) 
+                             ((L.range (i - (k / 2)) (i - 1) ) <> (L.range (i + 1) (i + (k / 2))))
+    startingEdges = foldMap (T.uncurry singletonEdge) $ 
+                      L.concat (map (\n -> map (T.Tuple n) 
+                                               (regularRingEdges n) ) 
+                                    startingNodes)
+    rewire :: forall e. (T.Tuple Int Int) -> Eff (random :: RANDOM | e) Graph 
+    rewire (T.Tuple i j) = do
+      yes <- random >>= (\r -> if r < beta then pure true else pure false)
+      if (not yes)
+        then
+          pure (singletonEdge i j)
+        else do
+          newTarget <- map (\x -> if x < i then x else x + 1) (randomInt 1 (n - 1))
+          pure $ singletonEdge i newTarget
+  in do
+    rewiredEdges <- sequence $ map rewire $ 
+                      L.filter (\(T.Tuple i j) -> i < j) 
+                               (edges startingEdges)
+    pure $ undirected $ foldl (<>) empty rewiredEdges
+
+gBarabasiAlbert :: forall e. Int -> Int -> Int -> Eff (random :: RANDOM | e) Graph
+gBarabasiAlbert m0 m size = 
   let 
     startingNodes = foldMap singletonNode (L.range 1 m0)
     startingEdges :: Graph

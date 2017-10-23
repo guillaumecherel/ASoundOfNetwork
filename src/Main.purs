@@ -59,23 +59,27 @@ go g u = iterateUntilM
 
 foreign import tick :: forall e. Eff (console :: CONSOLE | e) Unit
 
-graphRandom :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
-graphRandom = launchAff_ do
-  -- let g = G.gBipole
-  -- let g = G.gFork
-  g <- liftEff $ G.gRandom 0.1 50
+graphErdosRenyi :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
+graphErdosRenyi = launchAff_ do
+  g <- liftEff $ G.gErdosRenyi 0.1 50
   _ <- liftEff $ log $ show g
   _ <- go g 1
   pure unit
 
-graphPA :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
-graphPA = launchAff_ do
-  -- let g = G.gBipole
-  -- let g = G.gFork
-  g <- liftEff $ G.gPreferentialAttachment 3 3 50
+graphBarabasiAlbert :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
+graphBarabasiAlbert = launchAff_ do
+  g <- liftEff $ G.gBarabasiAlbert 2 2 100
+  _ <- liftEff $ log $ show g
+  _ <- go g 1
+  pure unit
+
+graphWattsStrogatz :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
+graphWattsStrogatz = launchAff_ do
+  g <- liftEff $ G.gWattsStrogatz 50 4 0.6 
   _ <- liftEff $ log $ show g
   _ <- go g 1
   pure unit
 
 main :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
 main = pure unit
+
