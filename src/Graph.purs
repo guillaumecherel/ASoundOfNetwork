@@ -94,7 +94,7 @@ gErdosRenyi p size =
                  mbEdges
 
 gWattsStrogatz :: forall e. Int -> Int -> Number -> Eff (random :: RANDOM | e) Graph
-gWattsStrogatz n k beta = 
+gWattsStrogatz n k beta =
   let 
     startingNodes = (L.range 1 n)
     regularRingEdges i = map (\i -> (mod ((mod (i - 1) n) + n) n) + 1) 
