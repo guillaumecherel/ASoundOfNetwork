@@ -9,7 +9,10 @@
         h2 { font-family: 'Jura', sans-serif; }
         p { font-family: 'Merriweather', serif;
             font-weight: 300; }
-        #button_stop { font-family: 'Jura', sans-serif;
+        button { font-family: 'Jura', sans-serif;
+                 font-size: 20px;
+                 font-weight: bold; }
+        #stop_button { font-family: 'Jura', sans-serif;
                        font-size: 20px;
                        font-weight: bold; }
 
@@ -20,7 +23,7 @@
         body { display: flex;
                flex-flow: column;
                justify-content: flex-start; }
-        #button_stop {margin-top: 1em;}
+        #stop_button {margin-top: 1em;}
 
         /* Display the models on a horizontal row. */
         #graph_models { align-self: stretch;
@@ -28,40 +31,53 @@
                         flex-direction: row;
                         justify-content: space-between;
                         align-items: stretch; }
-        #graph_models div.button { width: 24%; }
+        #graph_models div.graph_desc { width: 24%; }
 
-        /* Model button content. */
-        #graph_models div.button { margin: 0; padding: 0;
+        /* Graph description. */
+        #graph_models div.graph_desc {
                                    display: flex;
                                    flex-direction: column;
                                    justify-content: flex-start;
-                                   align-items: center; }
+                                   align-items: center;
+                                   }
         #graph_models h2 { margin: 1ex; padding: 0;
                            align-self: center; }
         #graph_models p { margin: 1ex 5% 1ex 5%; padding: 0; }
+        #graph_models button { margin: 1em; }
+
+        /* Listen buttons geometry. */
+        #graph_models button { padding: 1ex 1em;
+                       }
 
         /* Stop button geometry. */
-        #button_stop { width: 10%;
+        #stop_button { width: 10%;
                        height: 3.5em;}
 
         /* Center stop button. */
-        #button_stop { align-self: center; }
+        #stop_button { align-self: center; }
 
         /* Center text in stop button */
-        #button_stop { display: flex;
+        #stop_button { display: flex;
                        justify-content: center;
                        align-items: center;}
 
         /**** Colors ****/
         body { color: #122029;
                background-color: #417193; }
-        div.button { color: #122029;
+        div.graph_desc { color: #122029;
                  background-color: #9abbd3; }
+        button { background-color: #936341;
+                 color: #9abbd3}
 
         /**** Decorations ****/
-        div.button { border: 0;
+        div.graph_desc { border: 0;
                  box-shadow: 4px 4px 4px #223b4c;
                  border-radius: 1px; }
+        button { border: 0;
+                 box-shadow: 4px 4px 4px #223b4c;
+                 /* border-color: #41938c; */
+                 border-radius: 2px; }
+
     </style>
     <script src="ASoundOfNetwork.js"></script>
     <script>
@@ -73,6 +89,9 @@
         window.onload = function() {
             var graphName = 'graph' + location.hash.substr(1)
               , buttons = document.getElementsByTagName('button');
+
+            console.log(graphName)
+            console.log(buttons)
 
             if (aSoundOfNetwork.hasOwnProperty(graphName)) {
                 console.log('Run ' + graphName + '...');
@@ -89,7 +108,7 @@
 </head>
 <body>
     <div id="graph_models">
-        <div class="button" name="ErdosRenyi">
+        <div class="graph_desc">
             <h2>Erdős–Rényi</h2>
             <p>Anrst</p>
             <p>Anrst</p>
@@ -98,23 +117,27 @@
             <p>Anrst</p>
             <p>Anrst</p>
             <p>Anrst</p>
+            <button name="ErdosRenyi">Écoutez!</button>
         </div>
 
-        <div class="button" name="BarabasiAlbert">
+        <div class="graph_desc">
             <h2>Barabási–Albert</h2>
             <p>Anrst</p>
+            <button name="BarabasiAlbert">Écoutez!</button>
         </div>
 
-        <div class="button" name="WattsStrogatz">
+        <div class="graph_desc">
             <h2>Watts-Strogatz</h2>
             <p>Anrst</p>
+            <button name="WattsStrogatz">Écoutez!</button>
         </div>
 
-        <div class="button" name="Politoscope">
+        <div class="graph_desc">
             <h2>Politoscope</h2>
             <p>Anrst</p>
+            <button name="Politoscope">Écoutez!</button>
         </div>
     </div>
-    <div id="button_stop" class="button">Stop</div>
+    <button id="stop_button">Stop</div>
 </body>
 </html>
