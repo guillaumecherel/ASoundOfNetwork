@@ -20,10 +20,7 @@ function Geiger(gainValue) {
         })
       , gain = context.createGain();
 
-    //connect(knock, reverb, gain, context.destination);
-    knock.connect(reverb.input);
-    reverb.connect(gain);
-    gain.connect(context.destination);
+    connect(knock, reverb, gain, context.destination);
     gain.gain.value = gainValue || 400;
 
     this.context = context;
@@ -36,8 +33,10 @@ function Geiger(gainValue) {
 }
 
 function connect(/* node1 -> node2 -> ... -> nodeN */) {
-    for (var len = arguments.length, i = 1; i < len; i++)
-        arguments[i-1].connect(arguments[i]);
+    for (var len = arguments.length, i = 1; i < len; i++) {
+        var src = arguments[i-1], dst = arguments[i];
+        (src.output || src).connect(dst.input || dst);
+    }
 }
 
 function createAudioContext() {
