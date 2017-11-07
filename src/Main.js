@@ -12,16 +12,16 @@ exports.tick = function () {
 
 function Geiger(gainValue) {
     var context = createAudioContext()
-      , knock = createKnockFilter(context, {"freq": 6000, "Q": 50})
+      , knock = createKnockFilter(context, {freq: 500, Q: 25})
       , reverb = new SimpleReverb(context, {
-                  seconds: 0.01,
-                  decay: 1,
+                  seconds: 1,
+                  decay: 10,
                   reverse: 0
         })
       , gain = context.createGain();
 
     connect(knock, reverb, gain, context.destination);
-    gain.gain.value = gainValue || 400;
+    gain.gain.value = gainValue || 100;
 
     this.context = context;
     this.tick = function(duration) {
