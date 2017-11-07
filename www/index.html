@@ -100,8 +100,10 @@
         }
 
         window.onload = function() {
-            var graphName = 'graph' + location.hash.substr(1)
-              , buttons = document.getElementsByTagName('button');
+            var name = location.hash.substr(1)
+              , graphName = 'graph' + name
+              , buttons = document.getElementsByTagName('button')
+              , currentButton = document.getElementsByName(name);
 
             console.log(graphName)
             console.log(buttons)
@@ -109,6 +111,10 @@
             if (aSoundOfNetwork.hasOwnProperty(graphName)) {
                 console.log('Run ' + graphName + '...');
                 aSoundOfNetwork[graphName]();
+                if (currentButton.length) {
+                    currentButton[0].innerHTML = 'Stop';
+                    currentButton[0].name = '';
+                }
             }
 
             for (i = 0; i < buttons.length; i++) {
@@ -165,6 +171,6 @@
             <button name="Politoscope">Écoutez!</button>
         </div>
     </div>
-    <button id="stop_button">Stop</div>
+    <!--<button id="stop_button">Stop</div>-->
 </body>
 </html>
