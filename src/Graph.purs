@@ -35,6 +35,9 @@ instance showGraph :: Show Graph where
 showGraphTree :: Graph -> String
 showGraphTree (Graph g) = M.showTree g
 
+showEdgeList :: Graph -> String
+showEdgeList g = foldMap (\(T.Tuple u v) -> (show u) <> " " <> (show v) <> "\n") (edges g :: L.List (T.Tuple Int Int))
+
 empty :: Graph
 empty = Graph (M.empty)
 
@@ -66,7 +69,7 @@ edges :: forall f. Unfoldable f => Functor f => Bind f => Graph -> f (T.Tuple In
 edges (Graph g) = join (map (\t -> flatEdges t) (M.toUnfoldable g))
 
 undirected :: Graph -> Graph
-undirected g = foldMap (\(T.Tuple u v) -> g <> singletonEdge v u) ((edges g) :: L.List (T.Tuple Int Int))
+undirected g = foldMap (\(T.Tuple u v) -> singletonEdge u v  <> singletonEdge v u) ((edges g) :: L.List (T.Tuple Int Int))
 
 degree :: Int -> Graph -> Maybe Int
 degree i g = map S.size (neighbours i g)

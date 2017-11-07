@@ -3,12 +3,12 @@
 <head>
     <meta charset="utf-8">
     <style type="text/css">
-        @import url('https://fonts.googleapis.com/css?family=Jura|Merriweather:300,400');
+        @import url('https://fonts.googleapis.com/css?family=Jura|Play');
         /**** Text style ****/
-        body { font-size: 16px; }
+        body { font-size: 16px;
+               font-family: 'Play', serif; }
         h2 { font-family: 'Jura', sans-serif; }
-        p { font-family: 'Merriweather', serif;
-            font-weight: 300; }
+        h3 { font-family: 'Jura', sans-serif; }
         button { font-family: 'Jura', sans-serif;
                  font-size: 20px;
                  font-weight: bold; }
@@ -42,8 +42,17 @@
                                    }
         #graph_models h2 { margin: 1ex; padding: 0;
                            align-self: center; }
+        #graph_models h3 { margin: 1ex; padding: 0;
+                           align-self: center; }
         #graph_models p { margin: 1ex 5% 1ex 5%; padding: 0; }
+        #graph_models ul { margin: 1ex 5% 1ex 15%; padding: 0; }
         #graph_models button { margin: 1em; }
+        #graph_models div.graphEx {width: 221px; max: 167px;
+                                   display: flex;
+                                   align-items: center;
+                                   justify-content: space-around;
+                                   overflow: hidden; }
+        #graph_models img { height: 167px; }
 
         /* Listen buttons geometry. */
         #graph_models button { padding: 1ex 1em;
@@ -66,7 +75,7 @@
                background-color: #417193; }
         div.graph_desc { color: #122029;
                  background-color: #9abbd3; }
-        button { background-color: #936341;
+        button { background-color: #934148;
                  color: #9abbd3}
 
         /**** Decorations ****/
@@ -110,31 +119,45 @@
     <div id="graph_models">
         <div class="graph_desc">
             <h2>Erdős–Rényi</h2>
-            <p>Anrst</p>
-            <p>Anrst</p>
-            <p>Anrst</p>
-            <p>Anrst</p>
-            <p>Anrst</p>
-            <p>Anrst</p>
-            <p>Anrst</p>
+            <div class="graphEx">
+                <img src="../graphExamples/erdosRenyi.svg" alt="Erdős–Rényi example." />
+            </div>
+            <ul><li>60 nœuds.</li>
+                <li>Chaque paire de nœuds a 1 chance sur 10 d'être connectée.</li>
+            </ul>
+            <!--<div>
+                <img src="../graphExamples/erdosRenyi_degree-distribution.svg" alt="Erdős–Rényi distribution des degrés." />
+            </div>-->
             <button name="ErdosRenyi">Écoutez!</button>
         </div>
 
         <div class="graph_desc">
-            <h2>Barabási–Albert</h2>
-            <p>Anrst</p>
-            <button name="BarabasiAlbert">Écoutez!</button>
-        </div>
-
-        <div class="graph_desc">
             <h2>Watts-Strogatz</h2>
-            <p>Anrst</p>
+            <img src="../graphExamples/wattsStrogatz-circle.svg" alt="Watts-Strogatz example." />
+            <ul><li>60 nœuds placés sur un cercle.</li>
+                <li>Chaque nœud est connecté à ses 3 voisins de chaque côté.</li>
+                <li>Chaque connection a une probabilité 0.6 d'être redirigée vers un autre nœud cible.</li>
+            </ul>
             <button name="WattsStrogatz">Écoutez!</button>
         </div>
 
         <div class="graph_desc">
+            <h2>Barabási–Albert</h2>
+            <img src="../graphExamples/barabasiAlbert.svg" alt="Barabási–Albert example." />
+            <ul><li>60 nœuds ajoutés 1 par 1.</li>
+                <li>Chaque nouveau est connectés à 3 anciens nœuds, choisi avec une probabilité proportionnelle au nombre de connections actuelles.</li>
+            </ul>
+            <button name="BarabasiAlbert">Écoutez!</button>
+        </div>
+
+        <div class="graph_desc">
             <h2>Politoscope</h2>
-            <p>Anrst</p>
+            <div class="graphEx">
+                <img src="../graphExamples/politoscope.png" alt="Politoscope visualization." />
+            </div>
+            <ul><li>Un nœud par compte tweeter analysé.</li>
+                <li>Chaque paire de nœuds est connectée lorsqu'un des compte a "retweeté" l'autre.</li>
+            </ul>
             <button name="Politoscope">Écoutez!</button>
         </div>
     </div>

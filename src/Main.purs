@@ -61,25 +61,42 @@ foreign import tick :: forall e. Eff (console :: CONSOLE | e) Unit
 
 graphErdosRenyi :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
 graphErdosRenyi = launchAff_ do
-  g <- liftEff $ G.gErdosRenyi 0.1 50
-  _ <- liftEff $ log $ show g
+  g <- liftEff $ G.gErdosRenyi 0.1 60
+  _ <- liftEff $ log $ G.showGraphTree g
+  _ <- liftEff $ log $ G.showEdgeList g
   _ <- go g 1
   pure unit
 
 graphBarabasiAlbert :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
 graphBarabasiAlbert = launchAff_ do
-  g <- liftEff $ G.gBarabasiAlbert 2 2 100
-  _ <- liftEff $ log $ show g
+  g <- liftEff $ G.gBarabasiAlbert 3 3 60
+  _ <- liftEff $ log $ G.showGraphTree g
+  _ <- liftEff $ log $ G.showEdgeList g
   _ <- go g 1
   pure unit
 
 graphWattsStrogatz :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
 graphWattsStrogatz = launchAff_ do
-  g <- liftEff $ G.gWattsStrogatz 50 4 0.6 
-  _ <- liftEff $ log $ show g
+  g <- liftEff $ G.gWattsStrogatz 60 6 0.6 
+  _ <- liftEff $ log $ G.showGraphTree g
+  _ <- liftEff $ log $ G.showEdgeList g
   _ <- go g 1
   pure unit
 
-main :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
-main = pure unit
+showExamples :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
+showExamples = launchAff_ do
+  _ <- liftEff $ log $ "ErdosRenyi 0.1 20"
+  ger <- liftEff $ G.gErdosRenyi 0.1 20
+  _ <- liftEff $ log $ G.showEdgeList ger
+  _ <- liftEff $ log $ "WattsStrogatz 20 4 0.6"
+  gws <- liftEff $ G.gWattsStrogatz 20 4 0.2 
+  _ <- liftEff $ log $ G.showEdgeList gws
+  _ <- liftEff $ log $ "BarabasiAlbert 1 1 20"
+  gba <- liftEff $ G.gBarabasiAlbert 1 1 20 
+  _ <- liftEff $ log $ G.showEdgeList gba
+  pure unit
 
+
+main :: forall e. Eff (console :: CONSOLE, random :: RANDOM, timer :: TIMER| e) Unit
+-- main = pure unit
+main = showExamples
