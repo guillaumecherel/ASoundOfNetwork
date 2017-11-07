@@ -10,7 +10,7 @@ exports.tick = function () {
 // Inspired by: http://afandian.com/geigor
 // See also: https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createBufferSource
 
-function Geiger(soundURL) {
+function Geiger(opts /* { gain, sourceURL } */) {
     var context = createAudioContext()
       , knock = createKnockFilter(context, {freq: 500, Q: 25})
       , reverb = new SimpleReverb(context, {
@@ -22,15 +22,18 @@ function Geiger(soundURL) {
       , that = this
       , filters;
 
-    if (soundURL) {
+    gain.gain.value = opts.gain || 100;
+
+    if (opts.source) {
+        // Load external file
         this.externalSource = true;
-        (new BufferLoader(context, [soundURL], function(bufferList) {
+        (new BufferLoader(context, [opts.source], function(bufferList) {
             that.externalSource = bufferList[0];
         })).load();
-        gain.gain.value = 20;
+
+        // Don't put knock and reverb
         filters = connect(gain, context.destination);
     } else {
-        gain.gain.value = 100;
         filters = connect(knock, reverb, gain, context.destination);
     }
 
