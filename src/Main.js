@@ -10,7 +10,7 @@ exports.tick = function () {
 // Inspired by: http://afandian.com/geigor
 // See also: https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createBufferSource
 
-function Geiger(gainValue) {
+function Geiger(soundURL) {
     var context = createAudioContext()
       , knock = createKnockFilter(context, {freq: 500, Q: 25})
       , reverb = new SimpleReverb(context, {
@@ -18,25 +18,55 @@ function Geiger(gainValue) {
                   decay: 10,
                   reverse: 0
         })
-      , gain = context.createGain();
+      , gain = context.createGain()
+      , that = this
+      , filters;
 
-    connect(knock, reverb, gain, context.destination);
-    gain.gain.value = gainValue || 100;
+    if (soundURL) {
+        this.externalSource = true;
+        (new BufferLoader(context, [soundURL], function(bufferList) {
+            that.externalSource = bufferList[0];
+        })).load();
+        gain.gain.value = 20;
+        filters = connect(gain, context.destination);
+    } else {
+        gain.gain.value = 100;
+        filters = connect(knock, reverb, gain, context.destination);
+    }
 
     this.context = context;
     this.tick = function(duration) {
-        var source = createImpulseSource(this.context, duration || 1.0);
+        var source;
 
-        source.connect(knock);
-        source.start();
+        if (this.externalSource) {
+            if (typeof this.externalSource == 'object') {
+                source = context.createBufferSource();
+                source.buffer = this.externalSource;
+            }
+        } else {
+            source = createImpulseSource(this.context, duration || 1.0);
+        }
+
+        // In case of external source, it may be not loaded yet
+        if (source) {
+            connect(source, filters);
+            source.start();
+        }
     }
 }
 
 function connect(/* node1 -> node2 -> ... -> nodeN */) {
-    for (var len = arguments.length, i = 1; i < len; i++) {
+    var len = arguments.length;
+
+    if (len < 2)
+        return;
+
+    for (i = 1; i < len; i++) {
         var src = arguments[i-1], dst = arguments[i];
         (src.output || src).connect(dst.input || dst);
     }
+
+    return arguments[0];
 }
 
 function createAudioContext() {
@@ -89,10 +119,53 @@ function createImpulseSource(context, duration) {
     return source;
 }
 
+// https://www.html5rocks.com/en/tutorials/webaudio/intro/
+function BufferLoader(context, urlList, callback) {
+    this.context = context;
+    this.urlList = urlList;
+    this.onload = callback;
+    this.bufferList = new Array();
+    this.loadCount = 0;
+}
 
+BufferLoader.prototype.loadBuffer = function(url, index) {
+    // Load buffer asynchronously
+    var request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.responseType = "arraybuffer";
 
+    var loader = this;
 
+    request.onload = function() {
+        // Asynchronously decode the audio file data in request.response
+        loader.context.decodeAudioData(
+            request.response,
+            function(buffer) {
+                if (!buffer) {
+                    alert('error decoding file data: ' + url);
+                    return;
+                }
+                loader.bufferList[index] = buffer;
+                if (++loader.loadCount == loader.urlList.length)
+                    loader.onload(loader.bufferList);
+            },
+            function(error) {
+                console.error('decodeAudioData error', error);
+            }
+        );
+    }
 
+    request.onerror = function() {
+        alert('BufferLoader: XHR error');
+    }
+
+    request.send();
+}
+
+BufferLoader.prototype.load = function() {
+    for (var i = 0; i < this.urlList.length; ++i)
+    this.loadBuffer(this.urlList[i], i);
+}
 
 /**
  * https://github.com/web-audio-components/simple-reverb
