@@ -12,11 +12,19 @@ exports.tick = function () {
 
 function Geiger(gainValue) {
     var context = createAudioContext()
-      , knock = createKnockFilter(context)
+      , knock = createKnockFilter(context, {"freq": 6000, "Q": 50})
+      , reverb = new SimpleReverb(context, {
+                  seconds: 0.01,
+                  decay: 1,
+                  reverse: 0
+        })
       , gain = context.createGain();
 
-    connect(knock, gain, context.destination);
-    gain.gain.value = gainValue || 20;
+    //connect(knock, reverb, gain, context.destination);
+    knock.connect(reverb.input);
+    reverb.connect(gain);
+    gain.connect(context.destination);
+    gain.gain.value = gainValue || 400;
 
     this.context = context;
     this.tick = function(duration) {
@@ -56,7 +64,7 @@ function createImpulseSource(context, duration) {
     var pos, source, buffer
       , channels = 2
       , spacing = 1000.0
-      , impulseFrameCount = 5
+      , impulseFrameCount = 1
       , rate = context.sampleRate
       , delta = Math.floor(Math.random() * 6 - 3);
 
@@ -70,8 +78,10 @@ function createImpulseSource(context, duration) {
             data[i] = 0;
 
         pos = Math.floor(0.1 * duration * (rate / spacing));
-        for (i = 0; i < impulseFrameCount; i++)
-            data[pos * spacing + i + delta] = 1;
+        for (i = 0; i < impulseFrameCount; i++) {
+            //data[pos * spacing + i + delta] = 1;
+            data[i] = 1;
+        }
     }
 
     source = context.createBufferSource();
@@ -79,3 +89,146 @@ function createImpulseSource(context, duration) {
 
     return source;
 }
+
+
+
+
+
+
+/**
+ * https://github.com/web-audio-components/simple-reverb
+
+ * Simple Reverb constructor.
+ *
+ * @param {AudioContext} context
+ * @param {object} opts
+ * @param {number} opts.seconds
+ * @param {number} opts.decay
+ * @param {boolean} opts.reverse
+ */
+
+function SimpleReverb (context, opts) {
+  this.input = this.output = context.createConvolver();
+  this._context = context;
+
+  console.log("AAAA", this.prototype)
+
+  var p = this.meta.params;
+  opts = opts || {};
+  this._seconds   = opts.seconds  || p.seconds.defaultValue;
+  this._decay     = opts.decay    || p.decay.defaultValue;
+  this._reverse   = opts.reverse  || p.reverse.defaultValue;
+  this._buildImpulse();
+}
+
+SimpleReverb.prototype = Object.create(null, {
+
+  /**
+   * AudioNode prototype `connect` method.
+   *
+   * @param {AudioNode} dest
+   */
+
+  connect: {
+    value: function (dest) {
+      this.output.connect( dest.input ? dest.input : dest );
+    }
+  },
+
+  /**
+   * AudioNode prototype `disconnect` method.
+   */
+
+  disconnect: {
+    value: function () {
+      this.output.disconnect();
+    }
+  },
+
+  /**
+   * Utility function for building an impulse response
+   * from the module parameters.
+   */
+
+  _buildImpulse: {
+    value: function () {
+      var rate = this._context.sampleRate
+        , length = rate * this.seconds
+        , decay = this.decay
+        , impulse = this._context.createBuffer(2, length, rate)
+        , impulseL = impulse.getChannelData(0)
+        , impulseR = impulse.getChannelData(1)
+        , n, i;
+
+      for (i = 0; i < length; i++) {
+        n = this.reverse ? length - i : i;
+        impulseL[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+        impulseR[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+      }
+
+      this.input.buffer = impulse;
+    }
+  },
+
+  /**
+   * Module parameter metadata.
+   */
+
+  meta: {
+    value: {
+      name: "SimpleReverb",
+      params: {
+        seconds: {
+          min: 1,
+          max: 50,
+          defaultValue: 3,
+          type: "float"
+        },
+        decay: {
+          min: 0,
+          max: 100,
+          defaultValue: 2,
+          type: "float"
+        },
+        reverse: {
+          min: 0,
+          max: 1,
+          defaultValue: 0,
+          type: "bool"
+        }
+      }
+    }
+  },
+
+  /**
+   * Public parameters.
+   */
+
+  seconds: {
+    enumerable: true,
+    get: function () { return this._seconds; },
+    set: function (value) {
+      this._seconds = value;
+      this._buildImpulse();
+    }
+  },
+
+  decay: {
+    enumerable: true,
+    get: function () { return this._decay; },
+    set: function (value) {
+      this._decay = value;
+      this._buildImpulse();
+    }
+  },
+
+  reverse: {
+    enumerable: true,
+    get: function () { return this._reverse; },
+    set: function (value) {
+      this._reverse = value;
+      this._buildImpulse();
+    }
+  }
+
+});
