@@ -110,8 +110,6 @@ function SimpleReverb (context, opts) {
   this.input = this.output = context.createConvolver();
   this._context = context;
 
-  console.log("AAAA", this.prototype)
-
   var p = this.meta.params;
   opts = opts || {};
   this._seconds   = opts.seconds  || p.seconds.defaultValue;
