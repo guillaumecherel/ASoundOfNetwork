@@ -1,8 +1,11 @@
 exports.tick = function () {
     console.log("Tick!!!");
 
-    if (!window.geiger)
+    if (!window.geiger) {
         window.geiger = new Geiger();
+        // Example of external audio file usage:
+        //window.geiger = new Geiger({ source: 'sound/heart.wav', gain: 20 });
+    }
 
     window.geiger.tick();
 }
