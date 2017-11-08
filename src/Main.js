@@ -13,7 +13,7 @@ exports.tick = function () {
 // Inspired by: http://afandian.com/geigor
 // See also: https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createBufferSource
 
-function Geiger(opts /* { gain, sourceURL } */) {
+function Geiger(opts /* { gain, source } */) {
     var context = createAudioContext()
       , knock = createKnockFilter(context, {freq: 500, Q: 25})
       , reverb = new SimpleReverb(context, {
@@ -25,6 +25,7 @@ function Geiger(opts /* { gain, sourceURL } */) {
       , that = this
       , filters;
 
+    opts = opts || {};
     gain.gain.value = opts.gain || 100;
 
     if (opts.source) {
